@@ -11,11 +11,11 @@ Context "something" {
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq ‘Context ' -or $sender.CaretLineText -like “*Context " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText -eq "Context " -or $sender.CaretLineText -like "*Context " -and $selectedTextLineCount -eq 1)
     { 
         [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
         [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
-        $tabCount = $Script:tabs.($columnIndex - 3)            
+        $tabCount = $Script:tabs.($columnIndex - 8)            
         $psise.CurrentFile.Editor.SelectCaretLine()
 
         if($tabCount -gt 0)
@@ -33,7 +33,7 @@ Context "something" {
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($PesterItBlock)
+            [void]$PSise.CurrentFile.Editor.InsertText($PesterContextBlock)
         }
         
         Set-CaretPosition -Line $currentLine -Column 1

@@ -25,9 +25,9 @@
                     $script:BackSpaceMode = $true
                 }
             }
-            
+            # Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
             if($script:BackSpaceMode -eq $false -and $EventName -eq "CaretColumn")
-            {
+            { 
                 switch  -Wildcard ($sender.CaretLineText[-1])
                 { 
                 "{"
@@ -162,6 +162,11 @@
                 if($sender.CaretLineText -like "*it " -or $sender.CaretLineText -eq "it ")
                 { 
                     Add-PesterItBlock -Sender $sender
+                }
+
+                if($sender.CaretLineText -like "*context " -or $sender.CaretLineText -eq "context ")
+                {                     
+                    Add-PesterContext -Sender $sender
                 }
             }
 

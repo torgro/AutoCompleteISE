@@ -249,6 +249,52 @@ Param(
     }
 }
 
+function Add-PesterContext
+{ 
+Param(
+    $Sender
+)
+
+$PesterContextBlock = @' 
+Context "something" { 
+
+}
+'@
+    [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
+    
+    if($Sender.CaretLineText -eq "Context " -or $sender.CaretLineText -like "*Context " -and $selectedTextLineCount -eq 1)
+    { 
+        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
+        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        $tabCount = $Script:tabs.($columnIndex - 8)            
+        $psise.CurrentFile.Editor.SelectCaretLine()
+
+        if($tabCount -gt 0)
+        { 
+            $indent = $Script:tab * $tabCount
+            $sb = New-Object System.Text.StringBuilder
+
+            foreach($line in ($PesterContextBlock -split [environment]::NewLine))
+            { 
+                [void]$sb.Append($indent)
+                [void]$sb.Append($line)
+                [void]$sb.AppendLine()
+            }                
+            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+        }
+        else
+        { 
+            [void]$PSise.CurrentFile.Editor.InsertText($PesterContextBlock)
+        }
+        
+        Set-CaretPosition -Line $currentLine -Column 1
+        [Int]$IndexOfRight = $psise.CurrentFile.Editor.CaretLineText.IndexOf('"')
+        [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.LastIndexOf('"')
+        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
+    }
+    
+}
+
 function Add-PesterItBlock
 { 
 Param(
@@ -256,7 +302,7 @@ Param(
 )
 
 $PesterItBlock = @' 
-It "something" {
+It "something" { 
 
 }
 '@
@@ -582,9 +628,9 @@ function Enable-AutoCompleteEvent
                     $script:BackSpaceMode = $true
                 }
             }
-            
+            # Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
             if($script:BackSpaceMode -eq $false -and $EventName -eq "CaretColumn")
-            {
+            { 
                 switch  -Wildcard ($sender.CaretLineText[-1])
                 { 
                 "{"
@@ -720,6 +766,11 @@ function Enable-AutoCompleteEvent
                 { 
                     Add-PesterItBlock -Sender $sender
                 }
+
+                if($sender.CaretLineText -like "*context " -or $sender.CaretLineText -eq "context ")
+                {                     
+                    Add-PesterContext -Sender $sender
+                }
             }
 
         $script:PrevCaretLine = $Sender.CaretLine
@@ -727,6 +778,16 @@ function Enable-AutoCompleteEvent
     }
     
     $script:EventsEnabled.$BaseName = $ObjEvent.id
+}
+
+$Settings = @{
+	BracketOnNewLine = $true
+	AutoIndent       = $true
+}
+
+function Get-AutoCompleteSettings
+{ 
+    return $Script:Settings
 }
 
 function Get-Scriptlevel
@@ -783,6 +844,24 @@ Param(
     }
 
     return $Return
+}
+
+
+function Set-AutoCompleteSettings
+{
+[cmdletbinding()]
+Param(
+    [bool]$BracketOnNewLine
+    ,
+    [bool]$AutoIndent
+)
+    $f = $Mycommand.InvokationName
+    Write-Verbose -Message â€œ$f - STARTâ€
+    
+    $script:settings.BracketOnNewLine = $BracketOnNewLine
+    $script:settings.AutoIndent = $AutoIndent
+
+    Write-Verbose -Message â€œ$f - ENDâ€
 }
 
 function Set-CaretPosition
