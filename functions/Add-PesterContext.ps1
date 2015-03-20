@@ -1,17 +1,17 @@
-function Add-PesterItBlock
+function Add-PesterContext
 { 
 Param(
     $Sender
 )
 
-$PesterItBlock = @' 
-It "something" { 
+$PesterContextBlock = @' 
+Context "something" { 
 
 }
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq 'it ' -or $sender.CaretLineText -like "*it " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText -eq ‘Context ' -or $sender.CaretLineText -like “*Context " -and $selectedTextLineCount -eq 1)
     { 
         [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
         [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
@@ -23,7 +23,7 @@ It "something" {
             $indent = $Script:tab * $tabCount
             $sb = New-Object System.Text.StringBuilder
 
-            foreach($line in ($PesterItBlock -split [environment]::NewLine))
+            foreach($line in ($PesterContextBlock -split [environment]::NewLine))
             { 
                 [void]$sb.Append($indent)
                 [void]$sb.Append($line)
