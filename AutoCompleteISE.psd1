@@ -12,10 +12,10 @@
 RootModule = 'AutoCompleteISE.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.19.0'
+ModuleVersion = '1.0.20.0'
 
 # ID used to uniquely identify this module
-GUID = '98ba83fa-2091-453f-921d-cbb221078826'
+GUID = '19dd9e37-0d7e-4cef-a8c5-107265d3f8c4'
 
 # Author of this module
 Author = 'Tore Grøneng @toregroneng tore@firstpoint.no'
