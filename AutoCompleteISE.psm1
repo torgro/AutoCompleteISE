@@ -21,7 +21,7 @@ Param(
             [int]$line = $Sender.CaretLine
             if($NoNewLine)
             {                
-                Select-CaretLines -StartLine $line -StartCol ($col - 4) -EndLine $line
+                Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col - 4) -EndLine $line
                 $Sender.InsertText('{  }')
                 Set-CaretPosition -Sender $Sender -Line $line -Column ($col - 2)
                 return $null
@@ -822,12 +822,10 @@ Param(
     ,
     [Int]$EndCol
 )
-    if($sender)
-    {
-    }
-    else
-    {
-        $sender = $psISE.CurrentFile.Editor
+    if (-not $sender)
+    { 
+        Write-Verbose -Message "$f -  Sender is NULL" -Verbose
+        throw "error in $f - Sender is null"
     }
     [Int]$StartLineLength = $sender.GetLineLength($StartLine) + 1
     [Int]$EndLineLength = $sender.GetLineLength($EndLine) + 1
@@ -881,12 +879,10 @@ Param(
     [Int]$Column
 )
     [String]$f = $MyInvocation.InvocationName
-    if($sender)
-    {
-    }
-    else
-    {
-        $sender = $psISE.CurrentFile.Editor
+    if (-not $sender)
+    { 
+        Write-Verbose -Message "$f -  Sender is NULL" -Verbose
+        throw "error in $f - Sender is null"
     }
     [int]$Length = $sender.GetLineLength($line) + 1
     [bool]$Return = $false

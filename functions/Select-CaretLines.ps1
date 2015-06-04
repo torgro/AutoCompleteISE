@@ -12,12 +12,10 @@ Param(
     ,
     [Int]$EndCol
 )
-    if($sender)
-    {
-    }
-    else
-    {
-        $sender = $psISE.CurrentFile.Editor
+    if (-not $sender)
+    { 
+        Write-Verbose -Message "$f -  Sender is NULL" -Verbose
+        throw "error in $f - Sender is null"
     }
     [Int]$StartLineLength = $sender.GetLineLength($StartLine) + 1
     [Int]$EndLineLength = $sender.GetLineLength($EndLine) + 1

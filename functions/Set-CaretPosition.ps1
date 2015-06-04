@@ -9,12 +9,10 @@ Param(
     [Int]$Column
 )
     [String]$f = $MyInvocation.InvocationName
-    if($sender)
-    {
-    }
-    else
-    {
-        $sender = $psISE.CurrentFile.Editor
+    if (-not $sender)
+    { 
+        Write-Verbose -Message "$f -  Sender is NULL" -Verbose
+        throw "error in $f - Sender is null"
     }
     [int]$Length = $sender.GetLineLength($line) + 1
     [bool]$Return = $false

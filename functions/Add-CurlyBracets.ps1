@@ -21,7 +21,7 @@ Param(
             [int]$line = $Sender.CaretLine
             if($NoNewLine)
             {                
-                Select-CaretLines -StartLine $line -StartCol ($col - 4) -EndLine $line
+                Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col - 4) -EndLine $line
                 $Sender.InsertText('{  }')
                 Set-CaretPosition -Sender $Sender -Line $line -Column ($col - 2)
                 return $null
