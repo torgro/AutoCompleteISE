@@ -12,12 +12,12 @@ else
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq "else " -or $sender.CaretLineText -like "*else " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq "else " -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 3)            
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -30,14 +30,14 @@ else
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($ElseBlock)
+            [void]$Sender.InsertText($ElseBlock)
         }
         
-        Set-CaretPosition -Line ($currentLine + 2)        
+        Set-CaretPosition -sender $Sender -Line ($currentLine + 2)        
     }
     
 }

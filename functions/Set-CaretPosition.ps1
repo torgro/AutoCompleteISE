@@ -2,12 +2,21 @@
 { 
 [cmdletbinding()]
 Param(
+    $sender
+    ,
     [int]$Line
     ,
     [Int]$Column
 )
     [String]$f = $MyInvocation.InvocationName
-    [int]$Length = $psISE.CurrentFile.Editor.GetLineLength($line) + 1
+    if($sender)
+    {
+    }
+    else
+    {
+        $sender = $psISE.CurrentFile.Editor
+    }
+    [int]$Length = $sender.GetLineLength($line) + 1
     [bool]$Return = $false
 
     if(-not $Column)
@@ -18,7 +27,7 @@ Param(
     if($Length -ge $Column)
     { 
         Write-Verbose "$f - Setting position for line $Line, wanted column was $Column, length is $Length for line $Line"
-        $psise.CurrentFile.Editor.SetCaretPosition($Line,$Column)
+        $sender.SetCaretPosition($Line,$Column)
         $Return = $true
     }
     else

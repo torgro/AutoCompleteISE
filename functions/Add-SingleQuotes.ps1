@@ -12,10 +12,10 @@ Param(
 
         if($mod -eq 1 -and $selectedTextLineCount -eq 1)
         { 
-            $psISE.CurrentFile.Editor.InsertText("'")
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
-            Select-CaretLines -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            $Sender.InsertText("'")
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
         }
     }
 }

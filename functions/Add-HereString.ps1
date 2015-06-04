@@ -9,11 +9,11 @@ $here = @"
 '@
 "@
 
-    if($Sender.CaretLineText -like "*``[here``]")
+    if($Sender.CaretLineText.TrimStart(" ") -like "``[here``]")
     { 
-        $psISE.CurrentFile.Editor.SelectCaretLine()
-        $psISE.CurrentFile.Editor.InsertText($here)
-        $line = $psISE.CurrentFile.Editor.CaretLine + 1
-        Set-CaretPosition -Line $line -Column 5
+        $Sender.SelectCaretLine()
+        $Sender.InsertText($here)
+        $line = $Sender.CaretLine + 1
+        Set-CaretPosition -sender $Sender -Line $line -Column 5
     }
 }

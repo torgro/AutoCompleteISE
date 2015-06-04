@@ -12,12 +12,12 @@ $SplatObject = @{
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($sender.CaretLineText -like "*``[splat``]")
+    if($sender.CaretLineText.TrimStart(" ") -like "``[splat``]")
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 6) 
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -30,17 +30,16 @@ $SplatObject = @{
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($SplatBlock)
+            [void]$Sender.InsertText($SplatBlock)
         }
         
-        Set-CaretPosition -Line $currentLine -Column 1
-        [Int]$IndexOfDollar = $psise.CurrentFile.Editor.CaretLineText.IndexOf("$")
-        [Int]$IndexOfequal = $psise.CurrentFile.Editor.CaretLineText.IndexOf("=")
-        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfDollar + 2) -EndLine $currentLine -EndCol $IndexOfequal
-    }
-    
+        Set-CaretPosition -sender $Sender -Line $currentLine -Column 1
+        [Int]$IndexOfDollar = $Sender.CaretLineText.IndexOf("$")
+        [Int]$IndexOfequal = $Sender.CaretLineText.IndexOf("=")
+        Select-CaretLines -sender $Sender -StartLine $currentLine -StartCol ($IndexOfDollar + 2) -EndLine $currentLine -EndCol $IndexOfequal
+    }    
 }

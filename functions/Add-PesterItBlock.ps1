@@ -11,7 +11,7 @@ It "something" {
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq 'it ' -or $sender.CaretLineText -like "*it " -and $selectedTextLineCount -eq 1)
+    if($sender.CaretLineText.TrimStart(" ") -like "it " -and $selectedTextLineCount -eq 1)
     { 
         [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
         [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
@@ -41,5 +41,4 @@ It "something" {
         [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.LastIndexOf('"')
         Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
     }
-    
 }

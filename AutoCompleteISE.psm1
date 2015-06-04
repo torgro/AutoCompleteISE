@@ -16,35 +16,35 @@ Param(
         
         if($matchLeftCount -gt $matchRightCount -and $selectedTextLineCount -eq 1)
         {        
-            $psISE.CurrentFile.Editor.InsertText(' }')
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
+            $Sender.InsertText(' }')
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
             if($NoNewLine)
             {                
                 Select-CaretLines -StartLine $line -StartCol ($col - 4) -EndLine $line
-                $psISE.CurrentFile.Editor.InsertText('{  }')
-                Set-CaretPosition -Line $line -Column ($col - 2)
+                $Sender.InsertText('{  }')
+                Set-CaretPosition -Sender $Sender -Line $line -Column ($col - 2)
                 return $null
             }
-            Set-CaretPosition -Line $line -Column ($col -1)
+            Set-CaretPosition -Sender $Sender -Line $line -Column ($col -1)
 
-            $psise.CurrentFile.Editor.InsertText([environment]::NewLine)
-            $psise.CurrentFile.Editor.InsertText([environment]::NewLine)
+            $Sender.InsertText([environment]::NewLine)
+            $Sender.InsertText([environment]::NewLine)
 
             $IndentCount = $Script:tabs.$col
             
             if($IndentCount -gt 0)
             { 
                 $indent = $Script:tab * $IndentCount
-                $psise.CurrentFile.Editor.InsertText($indent)
+                $Sender.InsertText($indent)
             }
-            $psISE.CurrentFile.Editor.SelectCaretLine()
-            $line = $psISE.CurrentFile.Editor.CaretLine
+            $Sender.SelectCaretLine()
+            $line = $Sender.CaretLine
             
-            Set-CaretPosition -Line ($line - 1) -Column 1
+            Set-CaretPosition -Sender $Sender -Line ($line - 1) -Column 1
             
             $indent = $Script:tab * ($IndentCount + 1)
-            $psise.CurrentFile.Editor.InsertText($indent)
+            $Sender.InsertText($indent)
         }
     }
 }
@@ -64,10 +64,10 @@ Param(
 
         if($mod -eq 1 -and $selectedTextLineCount -eq 1)
         { 
-            $psISE.CurrentFile.Editor.InsertText('"')
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
-            Select-CaretLines -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            $Sender.InsertText('"')
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
         }
     }
 }
@@ -86,12 +86,12 @@ else
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq "else " -or $sender.CaretLineText -like "*else " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq "else " -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 3)            
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -104,14 +104,14 @@ else
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($ElseBlock)
+            [void]$Sender.InsertText($ElseBlock)
         }
         
-        Set-CaretPosition -Line ($currentLine + 2)        
+        Set-CaretPosition -sender $Sender -Line ($currentLine + 2)        
     }
     
 }
@@ -130,12 +130,12 @@ Foreach (something)
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq 'Foreach ' -or $sender.CaretLineText -like "*Foreach " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq 'Foreach ' -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 8) 
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -148,17 +148,17 @@ Foreach (something)
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($ForeachBlock)
+            [void]$Sender.InsertText($ForeachBlock)
         }
         
-        Set-CaretPosition -Line $currentLine -Column 1
-        [Int]$IndexOfRight = $psise.CurrentFile.Editor.CaretLineText.IndexOf("(")
-        [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.IndexOf(")")
-        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
+        Set-CaretPosition -sender $Sender -Line $currentLine -Column 1
+        [Int]$IndexOfRight = $Sender.CaretLineText.IndexOf("(")
+        [Int]$IndexOfLeft = $Sender.CaretLineText.IndexOf(")")
+        Select-CaretLines -sender $Sender -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
     }
     
 }
@@ -174,12 +174,12 @@ $here = @"
 '@
 "@
 
-    if($Sender.CaretLineText -like "*``[here``]")
+    if($Sender.CaretLineText.TrimStart(" ") -like "``[here``]")
     { 
-        $psISE.CurrentFile.Editor.SelectCaretLine()
-        $psISE.CurrentFile.Editor.InsertText($here)
-        $line = $psISE.CurrentFile.Editor.CaretLine + 1
-        Set-CaretPosition -Line $line -Column 5
+        $Sender.SelectCaretLine()
+        $Sender.InsertText($here)
+        $line = $Sender.CaretLine + 1
+        Set-CaretPosition -sender $Sender -Line $line -Column 5
     }
 }
 
@@ -197,12 +197,12 @@ if (something)
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq 'if ' -or $sender.CaretLineText -like "*if " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq 'if ' -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine 
         $tabCount = $Script:tabs.($columnIndex - 3)            
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -214,20 +214,19 @@ if (something)
                 [void]$sb.Append($indent)
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
-            }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            }                             
+            $Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))        
         }
         else
-        { 
-            [void]$PSise.CurrentFile.Editor.InsertText($IfBlock)
+        {             
+            $Sender.InsertText($IfBlock)
         }
         
-        Set-CaretPosition -Line $currentLine -Column 1
-        [Int]$IndexOfRight = $psise.CurrentFile.Editor.CaretLineText.IndexOf("(")
-        [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.IndexOf(")")
-        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
-    }
-    
+        Set-CaretPosition -sender $Sender -Line $currentLine -Column 1        
+        [Int]$IndexOfRight = $Sender.CaretLineText.IndexOf("(")
+        [Int]$IndexOfLeft = $Sender.CaretLineText.IndexOf(")")
+        Select-CaretLines -Sender $Sender -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
+    }    
 }
 
 Function Add-ParameterBlock
@@ -240,12 +239,12 @@ Param(
     [string]$First
 )
 '@
-    if($sender.CaretLineText -eq "Param" -or $Sender.CaretLineText -like "*Param")
+    if($sender.CaretLineText.TrimStart(" ") -eq "Param")
     { 
-        $psISE.CurrentFile.Editor.SelectCaretLine()
-        $psISE.CurrentFile.Editor.InsertText($param)
-        $line = $psISE.CurrentFile.Editor.CaretLine + 1
-        Select-CaretLines -StartLine $line -StartCol 14 -EndLine $line -EndCol 19        
+        $Sender.SelectCaretLine()
+        $Sender.InsertText($param)
+        $line = $Sender.CaretLine + 1
+        Select-CaretLines -sender $Sender -StartLine $line -StartCol 14 -EndLine $line -EndCol 19        
     }
 }
 
@@ -262,12 +261,12 @@ Context "something" {
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq "Context " -or $sender.CaretLineText -like "*Context " -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq "Context " -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 8)            
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -280,17 +279,17 @@ Context "something" {
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($PesterContextBlock)
+            [void]$Sender.InsertText($PesterContextBlock)
         }
         
         Set-CaretPosition -Line $currentLine -Column 1
-        [Int]$IndexOfRight = $psise.CurrentFile.Editor.CaretLineText.IndexOf('"')
-        [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.LastIndexOf('"')
-        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
+        [Int]$IndexOfRight = $Sender.CaretLineText.IndexOf('"')
+        [Int]$IndexOfLeft = $Sender.CaretLineText.LastIndexOf('"')
+        Select-CaretLines -sender $Sender -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
     }
     
 }
@@ -308,7 +307,7 @@ It "something" {
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($Sender.CaretLineText -eq 'it ' -or $sender.CaretLineText -like "*it " -and $selectedTextLineCount -eq 1)
+    if($sender.CaretLineText.TrimStart(" ") -like "it " -and $selectedTextLineCount -eq 1)
     { 
         [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
         [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
@@ -338,7 +337,6 @@ It "something" {
         [Int]$IndexOfLeft = $psise.CurrentFile.Editor.CaretLineText.LastIndexOf('"')
         Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfRight + 2) -EndLine $currentLine -EndCol ($IndexOfLeft + 1)
     }
-    
 }
 
 function Add-RegularParenthesis
@@ -358,10 +356,10 @@ Param(
 
         if($matchLeftCount -gt $matchRightCount -and $selectedTextLineCount -eq 1)
         { 
-            $psISE.CurrentFile.Editor.InsertText(')')
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
-            Select-CaretLines -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            $Sender.InsertText(')')
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
         }                      
     }
 }
@@ -380,10 +378,10 @@ Param(
 
         if($mod -eq 1 -and $selectedTextLineCount -eq 1)
         { 
-            $psISE.CurrentFile.Editor.InsertText("'")
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
-            Select-CaretLines -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            $Sender.InsertText("'")
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
         }
     }
 }
@@ -402,12 +400,12 @@ $SplatObject = @{
 '@
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
     
-    if($sender.CaretLineText -like "*``[splat``]")
+    if($sender.CaretLineText.TrimStart(" ") -like "``[splat``]")
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 6) 
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
 
         if($tabCount -gt 0)
         { 
@@ -420,19 +418,18 @@ $SplatObject = @{
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($SplatBlock)
+            [void]$Sender.InsertText($SplatBlock)
         }
         
-        Set-CaretPosition -Line $currentLine -Column 1
-        [Int]$IndexOfDollar = $psise.CurrentFile.Editor.CaretLineText.IndexOf("$")
-        [Int]$IndexOfequal = $psise.CurrentFile.Editor.CaretLineText.IndexOf("=")
-        Select-CaretLines -StartLine $currentLine -StartCol ($IndexOfDollar + 2) -EndLine $currentLine -EndCol $IndexOfequal
-    }
-    
+        Set-CaretPosition -sender $Sender -Line $currentLine -Column 1
+        [Int]$IndexOfDollar = $Sender.CaretLineText.IndexOf("$")
+        [Int]$IndexOfequal = $Sender.CaretLineText.IndexOf("=")
+        Select-CaretLines -sender $Sender -StartLine $currentLine -StartCol ($IndexOfDollar + 2) -EndLine $currentLine -EndCol $IndexOfequal
+    }    
 }
 
 function Add-SquareParenthesis
@@ -452,10 +449,10 @@ Param(
 
         if($matchLeftCount -gt $matchRightCount -and $selectedTextLineCount -eq 1)
         { 
-            $psISE.CurrentFile.Editor.InsertText(']')
-            [int]$col = $psISE.CurrentFile.Editor.CaretColumn
-            [int]$line = $psISE.CurrentFile.Editor.CaretLine
-            Select-CaretLines -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            $Sender.InsertText(']')
+            [int]$col = $Sender.CaretColumn
+            [int]$line = $Sender.CaretLine
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
         }                      
     }
 }
@@ -484,12 +481,12 @@ Finally
 
     [int]$selectedTextLineCount = ($Sender.SelectedText -split [environment]::NewLine | Measure-Object).count
 
-    if($Sender.CaretLineText -eq 'try' -or $sender.CaretLineText -like "*try" -and $selectedTextLineCount -eq 1)
+    if($Sender.CaretLineText.TrimStart(" ") -eq 'try' -and $selectedTextLineCount -eq 1)
     { 
-        [Int]$ColumnIndex = $psise.CurrentFile.Editor.CaretColumn
-        [int]$currentLine = $psise.CurrentFile.Editor.CaretLine
+        [Int]$ColumnIndex = $Sender.CaretColumn
+        [int]$currentLine = $Sender.CaretLine
         $tabCount = $Script:tabs.($columnIndex - 3)            
-        $psise.CurrentFile.Editor.SelectCaretLine()
+        $Sender.SelectCaretLine()
         if($tabCount -gt 0)
         { 
             $indent = $Script:tab * $tabCount
@@ -501,14 +498,14 @@ Finally
                 [void]$sb.Append($line)
                 [void]$sb.AppendLine()
             }                
-            [void]$PSise.CurrentFile.Editor.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
+            [void]$Sender.InsertText($sb.ToString().TrimEnd([environment]::NewLine))                
         }
         else
         { 
-            [void]$PSise.CurrentFile.Editor.InsertText($tryblock)
+            [void]$Sender.InsertText($tryblock)
         }        
         
-        Set-CaretPosition -Line ($currentLine + 2)        
+        Set-CaretPosition -sender $Sender -Line ($currentLine + 2)        
     }
 }
 
@@ -533,32 +530,32 @@ Param(
     }
 
     [string]$InsertTxt = $Types["$Type"]
-    [int]$colIndex = $psise.CurrentFile.Editor.CaretLineText.LastIndexOf("[") + 1 #$psise.CurrentFile.Editor.CaretColumn - 3
-    [int]$line = $psISE.CurrentFile.Editor.CaretLine 
+    [int]$colIndex = $sender.CaretLineText.LastIndexOf("[") + 1 #$psise.CurrentFile.Editor.CaretColumn - 3
+    [int]$line = $sender.CaretLine 
     
-    Select-CaretLines -StartLine $line -StartCol $colIndex -EndLine $line
-    $psISE.CurrentFile.Editor.InsertText($InsertTxt)
-    [bool]$containsIndent = $psise.CurrentFile.Editor.CaretLineText.Contains($Script:tab)
+    Select-CaretLines -sender $sender -StartLine $line -StartCol $colIndex -EndLine $line
+    $sender.InsertText($InsertTxt)
+    [bool]$containsIndent = $sender.CaretLineText.Contains($Script:tab)
     $IndentCount = $Script:tabs.$colIndex
     
     if($IndentCount -gt 0 -and $containsIndent -eq $true)
     { 
-        $psISE.CurrentFile.Editor.SetCaretPosition($line,1)
+        $sender.SetCaretPosition($line,1)
         $indent = $Script:tab * $IndentCount
         #$psise.CurrentFile.Editor.InsertText($indent)
     }
 
-    [int]$col = $psise.CurrentFile.Editor.CaretLineText.length
+    [int]$col = $sender.CaretLineText.length
     [int]$indexDollar = $sender.CaretLineText.LastIndexOf('$')
 
     if($InsertTxt.contains("="))
     { 
         [int]$endCol = $InsertTxt.IndexOf("=") + (4 * $IndentCount)        
-        Select-CaretLines -StartLine $line -StartCol ($indexDollar + 2) -EndLine $line -EndCol $endCol
+        Select-CaretLines -sender $sender -StartLine $line -StartCol ($indexDollar + 2) -EndLine $line -EndCol $endCol
     }
     else
     { 
-        Select-CaretLines -StartLine $line -StartCol ($indexDollar + 2) -EndLine $line
+        Select-CaretLines -sender $sender -StartLine $line -StartCol ($indexDollar + 2) -EndLine $line
     }
 }
 
@@ -815,6 +812,8 @@ function Select-CaretLines
 { 
 [cmdletbinding()]
 Param(
+    $sender
+    ,
     [int]$StartLine
     ,
     [Int]$StartCol
@@ -823,8 +822,15 @@ Param(
     ,
     [Int]$EndCol
 )
-    [Int]$StartLineLength = $psISE.CurrentFile.Editor.GetLineLength($StartLine) + 1
-    [Int]$EndLineLength = $psISE.CurrentFile.Editor.GetLineLength($EndLine) + 1
+    if($sender)
+    {
+    }
+    else
+    {
+        $sender = $psISE.CurrentFile.Editor
+    }
+    [Int]$StartLineLength = $sender.GetLineLength($StartLine) + 1
+    [Int]$EndLineLength = $sender.GetLineLength($EndLine) + 1
     [bool]$Return = $false
 
     if(-not $EndCol)
@@ -835,7 +841,7 @@ Param(
     if($StartLineLength -ge $StartCol -and $EndLineLength -ge $EndCol)
     { 
         Write-Verbose -Message "Setting selection startline=$StartLine, startcol=$StartCol, endline=$EndLine, EndCol=$EndCol"
-        $psISE.CurrentFile.Editor.Select($StartLine,$StartCol,$EndLine,$EndCol)
+        $sender.Select($StartLine,$StartCol,$EndLine,$EndCol)
         $Return = $true
     }
     else
@@ -856,24 +862,33 @@ Param(
     [bool]$AutoIndent
 )
     $f = $Mycommand.InvokationName
-    Write-Verbose -Message â€œ$f - STARTâ€
+    Write-Verbose -Message "$f - START"
     
     $script:settings.BracketOnNewLine = $BracketOnNewLine
     $script:settings.AutoIndent = $AutoIndent
 
-    Write-Verbose -Message â€œ$f - ENDâ€
+    Write-Verbose -Message "$f - END"
 }
 
 function Set-CaretPosition
 { 
 [cmdletbinding()]
 Param(
+    $sender
+    ,
     [int]$Line
     ,
     [Int]$Column
 )
     [String]$f = $MyInvocation.InvocationName
-    [int]$Length = $psISE.CurrentFile.Editor.GetLineLength($line) + 1
+    if($sender)
+    {
+    }
+    else
+    {
+        $sender = $psISE.CurrentFile.Editor
+    }
+    [int]$Length = $sender.GetLineLength($line) + 1
     [bool]$Return = $false
 
     if(-not $Column)
@@ -884,7 +899,7 @@ Param(
     if($Length -ge $Column)
     { 
         Write-Verbose "$f - Setting position for line $Line, wanted column was $Column, length is $Length for line $Line"
-        $psise.CurrentFile.Editor.SetCaretPosition($Line,$Column)
+        $sender.SetCaretPosition($Line,$Column)
         $Return = $true
     }
     else

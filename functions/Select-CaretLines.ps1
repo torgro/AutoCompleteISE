@@ -2,6 +2,8 @@
 { 
 [cmdletbinding()]
 Param(
+    $sender
+    ,
     [int]$StartLine
     ,
     [Int]$StartCol
@@ -10,8 +12,15 @@ Param(
     ,
     [Int]$EndCol
 )
-    [Int]$StartLineLength = $psISE.CurrentFile.Editor.GetLineLength($StartLine) + 1
-    [Int]$EndLineLength = $psISE.CurrentFile.Editor.GetLineLength($EndLine) + 1
+    if($sender)
+    {
+    }
+    else
+    {
+        $sender = $psISE.CurrentFile.Editor
+    }
+    [Int]$StartLineLength = $sender.GetLineLength($StartLine) + 1
+    [Int]$EndLineLength = $sender.GetLineLength($EndLine) + 1
     [bool]$Return = $false
 
     if(-not $EndCol)
@@ -22,7 +31,7 @@ Param(
     if($StartLineLength -ge $StartCol -and $EndLineLength -ge $EndCol)
     { 
         Write-Verbose -Message "Setting selection startline=$StartLine, startcol=$StartCol, endline=$EndLine, EndCol=$EndCol"
-        $psISE.CurrentFile.Editor.Select($StartLine,$StartCol,$EndLine,$EndCol)
+        $sender.Select($StartLine,$StartCol,$EndLine,$EndCol)
         $Return = $true
     }
     else
