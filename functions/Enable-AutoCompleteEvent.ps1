@@ -28,7 +28,7 @@
             # Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
             if($script:BackSpaceMode -eq $false -and $EventName -eq "CaretColumn")
             { 
-                switch  -Wildcard ($sender.CaretLineText[-1])
+                switch -Wildcard ($sender.CaretLineText[-1])
                 { 
                 "{"
                 { 

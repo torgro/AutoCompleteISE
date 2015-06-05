@@ -1,5 +1,6 @@
 ﻿function Switch-Comment
 { 
+
     [string]$selected = $psISE.CurrentFile.Editor.SelectedText
 
     $LineCount = ($selected -split [environment]::NewLine | Measure-Object).Count
