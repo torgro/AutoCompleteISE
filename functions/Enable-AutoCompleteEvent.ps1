@@ -14,7 +14,7 @@
     
     $ObjEvent = Register-ObjectEvent -Inputobject $psISE.CurrentFile.Editor -EventName PropertyChanged -Action {           
             $EventName = $event.SourceEventArgs.PropertyName
-
+            $f = "Enable-AutoCompleteEvent"
 #            Write-Verbose "event $EventName" -Verbose
             
             $script:BackSpaceMode = $false
@@ -25,10 +25,12 @@
                     $script:BackSpaceMode = $true
                 }
             }
-            # Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
+            #Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
             if($script:BackSpaceMode -eq $false -and $EventName -eq "CaretColumn")
             { 
-                switch -Wildcard ($sender.CaretLineText[-1])
+                [Int]$LastTypedPosition = $sender.CaretColumn - 2
+                #Write-Verbose -Message "$f -  lasttyped=$($sender.CaretLineText[$LastTypedPosition])" -Verbose
+                switch -Wildcard ($sender.CaretLineText[$LastTypedPosition])
                 { 
                 "{"
                 { 
@@ -55,6 +57,7 @@
 
                 "("
                 { 
+                    #Write-Verbose -Message "$f - calling Add-RegularParenthesis"
                     Add-RegularParenthesis -Sender $sender
                 }
 

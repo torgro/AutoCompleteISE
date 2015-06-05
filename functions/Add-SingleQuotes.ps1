@@ -3,7 +3,8 @@
 Param(
     $Sender
 )
-    if($Sender.CaretLineText[-1] -eq "'")
+    [Int]$LastTypedPosition = $sender.CaretColumn - 2
+    if($Sender.CaretLineText[$LastTypedPosition] -eq "'")
     { 
         $matchDoubleQuote = $Sender.CaretLineText | Select-String -Pattern "'" -AllMatches
         # Finding odd or even number (even

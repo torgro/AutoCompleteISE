@@ -3,7 +3,8 @@
 Param(
     $Sender
 )
-    if($Sender.CaretLineText[-1] -eq '[')
+    [Int]$LastTypedPosition = $sender.CaretColumn - 2
+    if($Sender.CaretLineText[$LastTypedPosition] -eq '[')
     { 
         $escaped = [regex]::Escape("[")
         $matchLeft = $sender.text | Select-String -Pattern $escaped -AllMatches
