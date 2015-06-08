@@ -6,6 +6,12 @@ Param(
     $f = $MyInvocation.InvocationName
     Write-Verbose -Message "$f - START"
     [Int]$LastTypedPosition = $sender.CaretColumn - 2
+    Write-Verbose -Message "$f -  LastTypedPosition = $LastTypedPosition" -Verbose
+    if ($LastTypedPosition -lt 0)
+    { 
+        Write-Verbose -Message "$f -  LastTypedPosition is less than 0" -Verbose
+        break
+    }
     if($Sender.CaretLineText[$LastTypedPosition] -eq '(')
     { 
         $escaped = [regex]::Escape("(")

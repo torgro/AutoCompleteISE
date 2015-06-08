@@ -4,7 +4,7 @@ Param(
     $Sender
 )
 $param = @'
-Param(
+Param( 
     [string]$First
 )
 '@
