@@ -19,7 +19,7 @@ Param(
             $Sender.InsertText(']')
             [int]$col = $Sender.CaretColumn
             [int]$line = $Sender.CaretLine
-            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)            
+            Select-CaretLines -sender $Sender -StartLine $line -StartCol ($col -1) -EndLine $line -EndCol ($col -1)
         }                      
     }
 }
