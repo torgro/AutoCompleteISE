@@ -19,12 +19,13 @@
             
             $script:BackSpaceMode = $false
             if($script:PrevCaretLine -eq $sender.CaretLine)
-            {
-                if (($script:PrevLineLength -$sender.CaretLineText.length) -eq 1)
+            {           
+                if(($script:PrevLineCursorPosition - $sender.CaretColumn) -ge 1)
                 { 
                     $script:BackSpaceMode = $true
                 }
             }
+            #Write-Verbose -Message "Enable-AutoCompleteEvent -  Backspacemode=$script:BackSpaceMode" -Verbose
             #Write-Verbose -Message "line = $($sender.CaretLineText)" -Verbose
             if($script:BackSpaceMode -eq $false -and $EventName -eq "CaretColumn")
             { 
@@ -174,7 +175,7 @@
             }
 
         $script:PrevCaretLine = $Sender.CaretLine
-        $script:PrevLineLength = $psISE.CurrentFile.Editor.CaretLineText.Length
+        $script:PrevLineCursorPosition = $sender.CaretColumn
     }
     
     $script:EventsEnabled.$BaseName = $ObjEvent.id
